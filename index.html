@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Konklave Komplett</title>
+<title>Konklave Pro</title>
 
 <style>
 body {
@@ -11,169 +11,126 @@ body {
     background: #f4f4f4;
 }
 
-/* ===== LEGENDE ===== */
-.legend {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: white;
-    border: 1px solid #aaa;
-    padding: 8px;
-    font-size: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    text-align: left;
+/* ===== PAPAM ===== */
+.papam {
+    display: none;
+    background: gold;
+    padding: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 /* ===== KARTEN ===== */
 .container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
     gap: 8px;
-    margin-bottom: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .card {
     width: 130px;
     background: white;
     border: 1px solid #aaa;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
     position: relative;
 }
 
 .img {
-    width: 100%;
     height: 110px;
     background: #ddd;
     background-size: cover;
-    background-position: center;
 }
 
 .name {
-    font-size: 14px;
     font-weight: bold;
-    padding: 2px;
 }
 
-.bar {
-    display: flex;
-    justify-content: space-between;
-    background: #eee;
-    padding: 2px;
-    font-size: 11px;
-}
-
-.left {
-    display: flex;
-    gap: 3px;
-    align-items: center;
-}
-
-.badge {
-    background: black;
-    color: white;
-    padding: 1px 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 14px;
-}
-
-/* 🔥 FIX: PERFEKT ZENTRIERT */
 .type {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    height: 14px;
-    min-width: 24px;
-
-    font-size: 10px;
-    font-weight: bold;
-
-    color: white;
-    background: #ccc;
-
-    padding: 0 4px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:14px;
+    font-size:10px;
+    color:white;
 }
 
 /* kleines X */
 .delete-btn {
-    position: absolute;
-    top: 2px;
-    right: 3px;
-    background: red;
-    color: white;
-    border: none;
-    font-size: 9px;
-    padding: 0 3px;
-    cursor: pointer;
-    opacity: 0.7;
+    position:absolute;
+    top:2px;
+    right:3px;
+    font-size:9px;
+    background:red;
+    color:white;
+    border:none;
 }
 
 /* ===== MATRIX ===== */
 table {
     border-collapse: collapse;
     margin: auto;
-    background: white;
+    background:white;
 }
 
 th, td {
-    border: 1px solid #aaa;
-    padding: 6px;
+    border:1px solid #aaa;
+    padding:6px;
 }
 
 input {
-    width: 60px;
-    text-align: center;
-    border: none;
+    width:60px;
+    text-align:center;
 }
 
 .gold {
-    outline: 3px solid gold;
+    outline:3px solid gold;
 }
 
 .small-x {
-    color: red;
-    font-size: 10px;
-    cursor: pointer;
-    margin-left: 4px;
+    color:red;
+    cursor:pointer;
 }
 
-/* Buttons */
-button {
-    margin: 5px;
-    padding: 6px 10px;
+/* ===== LEGEND ===== */
+.legend {
+    position:fixed;
+    right:10px;
+    top:10px;
+    background:white;
+    padding:5px;
+    border:1px solid #aaa;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== LEGENDE ===== -->
-<div class="legend" id="legend"><b>Ausrichtungen</b></div>
+<div class="papam" id="papam"></div>
+
+<div class="legend" id="legend"></div>
 
 <h2>Konklave</h2>
 
 <button onclick="addCard()">+ Kandidat</button>
-<div class="container" id="container"></div>
+<div class="container" id="cards"></div>
 
 <hr>
 
-<div>
-Wähler: <input id="total" type="number" value="120" oninput="updateThreshold()">
-→ 2/3 = <span id="thresholdDisplay">80</span>
-</div>
+Papstname: <input id="papstname" placeholder="z.B. Johannes XXIV">
 
-<button onclick="addCandidate()">+ Kandidat (Matrix)</button>
+<br><br>
+
+Wähler: <input id="total" value="120" oninput="updateThreshold()">
+→ 2/3 = <span id="thresholdDisplay">80</span>
+
+<br><br>
+
 <button onclick="addRound()">+ Wahlgang</button>
 
 <table>
 <thead>
-<tr id="header">
-<th>WG</th>
-<th>Info</th>
-</tr>
+<tr id="header"><th>WG</th></tr>
 </thead>
 <tbody id="body"></tbody>
 </table>
@@ -181,116 +138,81 @@ Wähler: <input id="total" type="number" value="120" oninput="updateThreshold()"
 <script>
 
 /* ===== AUSRICHTUNGEN ===== */
-
-const colors = {
-    ERK:"#050069", TRA:"#0500AD", KON:"#0500FF",
-    GKO:"#008CFF", MOD:"#FFD966",
-    GLI:"#FFA1A1", LIB:"#FF7575",
-    PRO:"#FF0000", SPR:"#B30C0C"
+const colors={
+ERK:"#050069",TRA:"#0500AD",KON:"#0500FF",
+GKO:"#008CFF",MOD:"#FFD966",
+GLI:"#FFA1A1",LIB:"#FF7575",
+PRO:"#FF0000",SPR:"#B30C0C"
 };
+const types=Object.keys(colors);
 
-const labels = {
-    ERK:"Erzkonservativ",
-    TRA:"Traditionell",
-    KON:"Konservativ",
-    GKO:"Gemäßigt konservativ",
-    MOD:"Moderat",
-    GLI:"Gemäßigt liberal",
-    LIB:"Liberal",
-    PRO:"Progressiv",
-    SPR:"Stark progressiv"
-};
-
-const types = Object.keys(colors);
-
-/* ===== LEGENDE ===== */
-
-function buildLegend(){
-    const l = document.getElementById("legend");
-    types.forEach(t=>{
-        const d = document.createElement("div");
-        d.innerHTML = `<span style="background:${colors[t]};display:inline-block;width:15px;height:10px;margin-right:5px"></span>${t} - ${labels[t]}`;
-        l.appendChild(d);
-    });
-}
+/* ===== DATEN ===== */
+let candidates=[];
+let threshold=80;
+let rounds=0;
 
 /* ===== KARTEN ===== */
-
 function addCard(){
-    const div = document.createElement("div");
+    const id=candidates.length;
+    candidates.push({name:"Name",type:null});
+
+    const div=document.createElement("div");
     div.className="card";
 
     div.innerHTML=`
-    <button class="delete-btn" onclick="this.parentElement.remove()">x</button>
+    <button class="delete-btn" onclick="removeCard(${id})">x</button>
     <div class="img" onclick="uploadImage(this)"></div>
-    <div class="name" onclick="editText(this)">Name</div>
-    <div class="bar">
-        <div class="left">
-            <span onclick="editText(this)">🏳️</span>
-            <span class="badge" onclick="editText(this)">0</span>
-            <span class="badge" onclick="editText(this)">0</span>
-        </div>
-        <span class="type" onclick="cycleType(this)" data-type="">---</span>
-    </div>`;
-    document.getElementById("container").appendChild(div);
+    <div class="name" onclick="editName(this,${id})">Name</div>
+    <div class="type" onclick="cycleType(this,${id})">---</div>
+    `;
+
+    document.getElementById("cards").appendChild(div);
+    updateHeader();
 }
 
-function editText(el){
-    const v=prompt("Wert:",el.innerText);
-    if(v!==null) el.innerText=v;
+function editName(el,id){
+    const v=prompt("Name:",el.innerText);
+    if(v){
+        el.innerText=v;
+        candidates[id].name=v;
+        updateHeader();
+    }
 }
 
-function cycleType(el){
-    let i = types.indexOf(el.dataset.type);
-    i = (i+1)%types.length;
-    const t = types[i];
-    el.dataset.type=t;
+function cycleType(el,id){
+    let i=types.indexOf(candidates[id].type);
+    i=(i+1)%types.length;
+    const t=types[i];
+    candidates[id].type=t;
     el.innerText=t;
     el.style.background=colors[t];
 }
 
-function uploadImage(div){
-    const input=document.createElement("input");
-    input.type="file";
-    input.onchange=e=>{
-        const r=new FileReader();
-        r.onload=ev=>div.style.backgroundImage=`url(${ev.target.result})`;
-        r.readAsDataURL(e.target.files[0]);
-    };
-    input.click();
+function removeCard(id){
+    candidates.splice(id,1);
+    document.getElementById("cards").innerHTML="";
+    rebuildCards();
+    rebuildTable();
 }
 
-/* ===== MATRIX ===== */
-
-let candidates=0, rounds=0, threshold=80;
-
-function updateThreshold(){
-    const total=Number(document.getElementById("total").value)||0;
-    threshold=Math.ceil((2/3)*total);
-    document.getElementById("thresholdDisplay").innerText=threshold;
-    checkMajority();
-}
-
-function addCandidate(){
-    const idx=candidates++;
-    const th=document.createElement("th");
-
-    th.innerHTML=`<input placeholder="Name">
-    <span class="small-x" onclick="removeCandidate(${idx})">✖</span>`;
-
-    document.getElementById("header").appendChild(th);
-
-    document.querySelectorAll("#body tr").forEach(r=>{
-        const td=document.createElement("td");
-        td.innerHTML=`<input type="number" value="0" oninput="checkMajority()">`;
-        r.appendChild(td);
+function rebuildCards(){
+    const old=[...candidates];
+    candidates=[];
+    old.forEach(c=>{
+        addCard();
+        candidates[candidates.length-1]=c;
     });
 }
 
-function removeCandidate(index){
-    document.getElementById("header").children[index+2].remove();
-    document.querySelectorAll("#body tr").forEach(r=>r.children[index+2].remove());
-    candidates--;
+/* ===== MATRIX ===== */
+function updateHeader(){
+    const h=document.getElementById("header");
+    h.innerHTML="<th>WG</th>";
+    candidates.forEach(c=>{
+        const th=document.createElement("th");
+        th.innerText=c.name;
+        h.appendChild(th);
+    });
 }
 
 function addRound(){
@@ -298,35 +220,57 @@ function addRound(){
     const tr=document.createElement("tr");
 
     let row=`<td>WG ${rounds}
-    <span class="small-x" onclick="this.closest('tr').remove()">✖</span></td>
-    <td>benötigt: ${threshold}</td>`;
+    <span class="small-x" onclick="this.closest('tr').remove()">✖</span></td>`;
 
-    for(let i=0;i<candidates;i++){
-        row+=`<td><input type="number" value="0" oninput="checkMajority()"></td>`;
-    }
+    candidates.forEach(()=> {
+        row+=`<td><input type="number" value="0" oninput="check()"></td>`;
+    });
 
     tr.innerHTML=row;
     document.getElementById("body").appendChild(tr);
 }
 
-function checkMajority(){
-    document.querySelectorAll("#body tr").forEach(r=>{
-        r.querySelectorAll("input").forEach(i=>{
-            i.classList.remove("gold");
-            if(Number(i.value)>=threshold) i.classList.add("gold");
-        });
-    });
+function rebuildTable(){
+    document.getElementById("body").innerHTML="";
+    rounds=0;
+    updateHeader();
 }
 
-/* START */
-buildLegend();
-updateThreshold();
+/* ===== LOGIK ===== */
+function updateThreshold(){
+    const total=Number(document.getElementById("total").value)||0;
+    threshold=Math.ceil((2/3)*total);
+    document.getElementById("thresholdDisplay").innerText=threshold;
+}
 
-for(let i=0;i<5;i++) addCard();
-for(let i=0;i<3;i++) addCandidate();
-for(let i=0;i<3;i++) addRound();
+function check(){
+    let winner=null;
+
+    document.querySelectorAll("#body tr").forEach(r=>{
+        const inputs=r.querySelectorAll("input");
+
+        inputs.forEach((i,idx)=>{
+            i.classList.remove("gold");
+            if(Number(i.value)>=threshold){
+                i.classList.add("gold");
+                winner=idx;
+            }
+        });
+    });
+
+    if(winner!==null){
+        const name=candidates[winner].name;
+        const papst=document.getElementById("papstname").value || "Papst ?";
+        const box=document.getElementById("papam");
+        box.style.display="block";
+        box.innerText=`Habemus Papam: ${papst} (${name})`;
+    }
+}
+
+/* ===== START ===== */
+updateThreshold();
+for(let i=0;i<3;i++) addCard();
 
 </script>
-
 </body>
 </html>
