@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Konklave Pro</title>
+<title>Konklave Pro Final</title>
 
 <style>
 body {
@@ -21,12 +21,23 @@ body {
     margin-bottom: 10px;
 }
 
+/* ===== LEGENDE ===== */
+.legend {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: 1px solid #aaa;
+    padding: 8px;
+    font-size: 12px;
+}
+
 /* ===== KARTEN ===== */
 .container {
     display: flex;
-    gap: 8px;
-    justify-content: center;
     flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
 }
 
 .card {
@@ -47,59 +58,52 @@ body {
 }
 
 .type {
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    height:14px;
-    font-size:10px;
-    color:white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 14px;
+    font-size: 10px;
+    color: white;
+    background: #ccc;
 }
 
 /* kleines X */
 .delete-btn {
-    position:absolute;
-    top:2px;
-    right:3px;
-    font-size:9px;
-    background:red;
-    color:white;
-    border:none;
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 9px;
+    background: red;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
 /* ===== MATRIX ===== */
 table {
     border-collapse: collapse;
     margin: auto;
-    background:white;
+    background: white;
 }
 
 th, td {
-    border:1px solid #aaa;
-    padding:6px;
+    border: 1px solid #aaa;
+    padding: 6px;
 }
 
 input {
-    width:60px;
-    text-align:center;
+    width: 60px;
+    text-align: center;
 }
 
 .gold {
-    outline:3px solid gold;
+    outline: 3px solid gold;
 }
 
 .small-x {
-    color:red;
-    cursor:pointer;
-}
-
-/* ===== LEGEND ===== */
-.legend {
-    position:fixed;
-    right:10px;
-    top:10px;
-    background:white;
-    padding:5px;
-    border:1px solid #aaa;
+    color: red;
+    cursor: pointer;
+    margin-left: 4px;
 }
 </style>
 </head>
@@ -107,8 +111,7 @@ input {
 <body>
 
 <div class="papam" id="papam"></div>
-
-<div class="legend" id="legend"></div>
+<div class="legend" id="legend"><b>Ausrichtungen</b></div>
 
 <h2>Konklave</h2>
 
@@ -138,18 +141,41 @@ Wähler: <input id="total" value="120" oninput="updateThreshold()">
 <script>
 
 /* ===== AUSRICHTUNGEN ===== */
-const colors={
-ERK:"#050069",TRA:"#0500AD",KON:"#0500FF",
-GKO:"#008CFF",MOD:"#FFD966",
-GLI:"#FFA1A1",LIB:"#FF7575",
-PRO:"#FF0000",SPR:"#B30C0C"
+const colors = {
+    ERK:"#050069", TRA:"#0500AD", KON:"#0500FF",
+    GKO:"#008CFF", MOD:"#FFD966",
+    GLI:"#FFA1A1", LIB:"#FF7575",
+    PRO:"#FF0000", SPR:"#B30C0C"
 };
-const types=Object.keys(colors);
+
+const labels = {
+    ERK:"Erzkonservativ",
+    TRA:"Traditionell",
+    KON:"Konservativ",
+    GKO:"Gemäßigt konservativ",
+    MOD:"Moderat",
+    GLI:"Gemäßigt liberal",
+    LIB:"Liberal",
+    PRO:"Progressiv",
+    SPR:"Stark progressiv"
+};
+
+const types = Object.keys(colors);
+
+/* ===== LEGENDE ===== */
+function buildLegend(){
+    const l = document.getElementById("legend");
+    types.forEach(t=>{
+        const d=document.createElement("div");
+        d.innerHTML = `<span style="background:${colors[t]};display:inline-block;width:15px;height:10px;margin-right:5px"></span>${t} - ${labels[t]}`;
+        l.appendChild(d);
+    });
+}
 
 /* ===== DATEN ===== */
 let candidates=[];
-let threshold=80;
 let rounds=0;
+let threshold=80;
 
 /* ===== KARTEN ===== */
 function addCard(){
@@ -190,14 +216,17 @@ function cycleType(el,id){
 
 function removeCard(id){
     candidates.splice(id,1);
-    document.getElementById("cards").innerHTML="";
-    rebuildCards();
-    rebuildTable();
+    rebuildAll();
 }
 
-function rebuildCards(){
+function rebuildAll(){
+    document.getElementById("cards").innerHTML="";
+    document.getElementById("body").innerHTML="";
+    rounds=0;
+
     const old=[...candidates];
     candidates=[];
+
     old.forEach(c=>{
         addCard();
         candidates[candidates.length-1]=c;
@@ -208,6 +237,7 @@ function rebuildCards(){
 function updateHeader(){
     const h=document.getElementById("header");
     h.innerHTML="<th>WG</th>";
+
     candidates.forEach(c=>{
         const th=document.createElement("th");
         th.innerText=c.name;
@@ -222,18 +252,12 @@ function addRound(){
     let row=`<td>WG ${rounds}
     <span class="small-x" onclick="this.closest('tr').remove()">✖</span></td>`;
 
-    candidates.forEach(()=> {
+    candidates.forEach(()=>{
         row+=`<td><input type="number" value="0" oninput="check()"></td>`;
     });
 
     tr.innerHTML=row;
     document.getElementById("body").appendChild(tr);
-}
-
-function rebuildTable(){
-    document.getElementById("body").innerHTML="";
-    rounds=0;
-    updateHeader();
 }
 
 /* ===== LOGIK ===== */
@@ -262,15 +286,31 @@ function check(){
         const name=candidates[winner].name;
         const papst=document.getElementById("papstname").value || "Papst ?";
         const box=document.getElementById("papam");
+
         box.style.display="block";
         box.innerText=`Habemus Papam: ${papst} (${name})`;
     }
 }
 
+/* ===== IMAGE ===== */
+function uploadImage(div){
+    const input=document.createElement("input");
+    input.type="file";
+    input.onchange=e=>{
+        const r=new FileReader();
+        r.onload=ev=>div.style.backgroundImage=`url(${ev.target.result})`;
+        r.readAsDataURL(e.target.files[0]);
+    };
+    input.click();
+}
+
 /* ===== START ===== */
+buildLegend();
 updateThreshold();
+
 for(let i=0;i<3;i++) addCard();
 
 </script>
+
 </body>
 </html>
